@@ -213,9 +213,6 @@ void RayTracer::Update() {
 		if (m_FrameIndex == 1)
 			memset(m_AccumulationData, 0, m_Width * m_Height * sizeof(glm::vec4));
 
-#define MT 1
-
-#if MT
 
 		std::for_each(std::execution::par, m_ImageVerticalIter.begin(), m_ImageVerticalIter.end(), [this](uint32_t y) {
 
@@ -234,27 +231,6 @@ void RayTracer::Update() {
 			});
 
 		});
-#else
-		
-		for (int y = 0; y < m_Height; y++) {
-
-			for (int x = 0; x < m_Width; x++) {
-
-				glm::vec4 color = PerPixel(x, y);
-
-				m_AccumulationData[y * m_Width + x] += color;
-
-				glm::vec4 accumulatedColor = m_AccumulationData[y * m_Width + x];
-				accumulatedColor /= (float)m_FrameIndex;
-
-				accumulatedColor = glm::clamp(accumulatedColor, glm::vec4(0.0f), glm::vec4(1.0f));
-				pixels[y * m_Width + x] = ToRGBA(accumulatedColor);
-
-			}
-
-		}
-#endif
- 
  
 
 		SDL_Texture* texture = SDL_CreateTextureFromSurface(m_Renderer, surface);
